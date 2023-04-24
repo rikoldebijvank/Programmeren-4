@@ -12,7 +12,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon index.js",
     "test": "mocha test/**/*.test.js --exit"
   },
   "author": "Rik Olde Bijvank",
