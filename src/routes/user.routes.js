@@ -23,46 +23,28 @@ router.post("/api/user", (req, res, next) => {
 
 // UC-202
 router.get("/api/user", (req, res) => {
-  const lastName = req.query.lastName
-  const isActive = req.query.isActive
-
-  if (!lastName && !isActive) {
-    res.status(200).json({
-      status: 200,
-      message: "Server get users endpoint",
-      data: usersDatabase
-    })
-  } else {
-    console.log(lastName, isActive)
-    console.log(usersDatabase)
-    const user = usersDatabase.filter((item) => {
-      //if (lastName != null) {
-      if (item.lastName == lastName) {
-        return true
-      }
-      //}
-      // if (isActive != null) {
-      //   item.isActive == isActive
-    }
-    )
-    console.log(user);
-
-    res.status(200).json({
-      status: 200,
-      message: "Server get users by lastName/isActive endpoint",
-      data: user
-    })
-  }
+  res.status(200).json({
+    status: 200,
+    message: "Server get users endpoint",
+    data: usersDatabase
+  })
 })
 
 // UC-203
 router.get("/api/user/profile", (req, res) => {
   const user = usersDatabase[0]
-  res.status(200).json({
-    status: 200,
-    message: "Server user profile endpoint",
-    data: user
-  })
+  if (user != undefined) {
+    res.status(200).json({
+      status: 200,
+      message: "Server user profile endpoint",
+      data: user
+    })
+  } else {
+    res.status(404).json({
+      status: 404,
+      message: "Server user profile not found endpoint",
+    })
+  }
 })
 
 // UC-204-206
