@@ -32,19 +32,10 @@ router.get("/api/user", (req, res) => {
 
 // UC-203
 router.get("/api/user/profile", (req, res) => {
-  const user = usersDatabase[0]
-  if (user != undefined) {
-    res.status(200).json({
-      status: 200,
-      message: "Server user profile endpoint",
-      data: user
-    })
-  } else {
-    res.status(404).json({
-      status: 404,
-      message: "Server user profile not found endpoint",
-    })
-  }
+  res.status(200).json({
+    status: 200,
+    message: "Receive profile data functionality not yet added",
+  })
 })
 
 // UC-204-206
