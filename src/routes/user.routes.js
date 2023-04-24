@@ -70,7 +70,6 @@ router.route("/api/user/:id")
   .get((req, res) => {
     const id = req.params.id
     const user = usersDatabase.filter((item) => item.id == id)
-    console.log(user);
     if (user.length > 0) {
       res.status(200).json({
         status: 200,
@@ -112,7 +111,6 @@ router.route("/api/user/:id")
   .delete((req, res) => {
     const id = req.params.id
     const index = usersDatabase.findIndex(user => { return user.id == id })
-    console.log(usersDatabase[index], index);
     usersDatabase.splice(index, 1)
 
     if (index != -1) {
