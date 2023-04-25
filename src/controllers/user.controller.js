@@ -18,11 +18,11 @@ let controller = {
       assert(typeof phoneNumber === 'string', 'phoneNumber must be a string')
       next()
     } catch(err) {
-      console.log(err)
-      res.status(400).json({
+      const error = {
         status: 400,
-        message: err.toString()
-      })
+        message: err.message
+      }
+      next(error)
     }
   },
   addUser:(req, res) => {
@@ -55,7 +55,7 @@ let controller = {
     })
   },
 
-  getUserById:(req, res) => {
+  getUserById:(req, res, next) => {
     const id = req.params.id
     const user = usersDatabase.filter((item) => item.id == id)
     if (user.length > 0) {
@@ -65,10 +65,11 @@ let controller = {
         data: user
       })
     } else {
-      res.status(404).json({
+      const error = {
         status: 404,
-        message: `Server could not find user with id ${id}`
-      })
+        message: `Server could not find user with ID ${id}`
+      }
+      next(error)
     }
   },
 
