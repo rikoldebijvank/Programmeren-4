@@ -3,7 +3,7 @@ const router = express.Router()
 const userController = require('../controllers/user.controller')
 
 // UC-201
-router.post("/api/user", userController.addUser)
+router.post("/api/user", userController.validateUser, userController.addUser)
 
 // UC-202
 router.get("/api/user", userController.getAllUsers)
