@@ -1,6 +1,5 @@
 const assert = require('assert')
-let usersDatabase = []
-let userId = 0
+const userDatabase = require('../../database/inmemdb_user')
 
 let controller = {
 
@@ -25,29 +24,38 @@ let controller = {
       next(error)
     }
   },
+  // UC-201
   addUser:(req, res) => {
-    let user = req.body
-    userId++
-    user = {
-      id: userId,
-      ...user
-    }
-    usersDatabase.push(user)
-    res.status(201).json({
-      status: 201,
-      message: "Server register user endpoint",
-      data: user
+    userDatabase.add(req.body, (error, result) => {
+      if(error) {
+        console.log(`index.js : ${error}`)
+        res.status(401).json({
+          status: 401,
+          message: error
+        })
+      }
+      if(result) {
+        console.log(`index.js : User successfully added`)
+        res.status(201).json({
+          status: 201,
+          message: "Server register user endpoint",
+          data: result
+        })
+      }
     })
   },
-
+  // UC-202
   getAllUsers:(req, res) => {
-    res.status(200).json({
-      status: 200,
-      message: "Server get users endpoint",
-      data: usersDatabase
+    userDatabase.getAll((result) => {
+      res.status(200).json({
+        status: 200,
+        message: "Server get users endpoint",
+        data: result
+      })
     })
   },
 
+  // UC-203
   getUserProfile:(req, res) => {
     res.status(200).json({
       status: 200,
@@ -55,24 +63,27 @@ let controller = {
     })
   },
 
-  getUserById:(req, res, next) => {
+  // UC-204
+  getUserById:(req, res) => {
     const id = req.params.id
-    const user = usersDatabase.filter((item) => item.id == id)
-    if (user.length > 0) {
-      res.status(200).json({
-        status: 200,
-        message: "Server get user by id endpoint",
-        data: user
-      })
-    } else {
-      const error = {
-        status: 404,
-        message: `Server could not find user with ID ${id}`
+    userDatabase.getById(id, (error, result) => {
+      if(error) {
+        res.status(401).json({
+          status: 401,
+          message: error
+        })
       }
-      next(error)
-    }
+      if(result) {
+        res.status(201).json({
+          status: 201,
+          message: `User with ID ${id} was found`,
+          data: result
+        })
+      }
+    })
   },
 
+  // UC-205
   editUserById:(req, res) => {
     let id = req.params.id
     id = parseInt(id)
@@ -99,6 +110,7 @@ let controller = {
     }
   },
 
+  // UC-206
   deleteUserById:(req, res) => {
     const id = req.params.id
     const index = usersDatabase.findIndex(user => { return user.id == id })

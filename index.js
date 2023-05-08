@@ -30,7 +30,7 @@ app.get("/api/info", (req, res) => {
   )
 })
 
-app.use(userRouter)
+app.use("/api/", userRouter)
 
 // UC-301
 app.post("/api/meal", (req, res, next) => {
