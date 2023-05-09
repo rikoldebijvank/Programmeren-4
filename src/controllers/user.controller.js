@@ -68,14 +68,14 @@ let controller = {
     const id = req.params.id
     userDatabase.getById(id, (error, result) => {
       if(error) {
-        res.status(401).json({
-          status: 401,
+        res.status(400).json({
+          status: 400,
           message: error
         })
       }
       if(result) {
         res.status(201).json({
-          status: 201,
+          status: 200,
           message: `User with ID ${id} was found`,
           data: result
         })
@@ -86,47 +86,36 @@ let controller = {
   // UC-205
   editUserById:(req, res) => {
     let id = req.params.id
-    id = parseInt(id)
-    let user = usersDatabase.filter(user => user.id == id)
-    const index = usersDatabase.findIndex(user => { return user.id === id })
-
-    if (user.length > 0) {
-      usersDatabase[index] = {
-        ...user['0'],
-        ...req.body
+    userDatabase.editById(id, req.body, (error, result) => {
+      if(error) {
+        res.status(404).json({
+          error
+        })
+      } else {
+        res.status(200).json({
+          status: 200,
+          message: "Server edit user endpoint",
+          data: result
+        })
       }
-      updatedUser = usersDatabase[index]
-
-      res.status(200).json({
-        status: 200,
-        message: "Server edit user endpoint",
-        data: updatedUser
-      })
-    } else {
-      res.status(404).json({
-        status: 404,
-        message: `Server cannot edit user with id ${id}`
-      })
-    }
+    })
   },
 
   // UC-206
   deleteUserById:(req, res) => {
     const id = req.params.id
-    const index = usersDatabase.findIndex(user => { return user.id == id })
-    usersDatabase.splice(index, 1)
-
-    if (index !== -1) {
-      res.status(200).json({
-        status: 200,
-        message: `Server- User with ID: ${id} removed`,
-      })
-    } else {
-      res.status(404).json({
-        status: 404,
-        message: `Server could not delete user with ID: ${id}`
-      })
-    }
+    userDatabase.deleteById(id, (error, result) => {
+      if(error) {
+        res.status(404).json({
+          error
+        })
+      } else {
+        res.status(200).json({
+          status: 200,
+          message: `Server- User with ID: ${id} removed`,
+        })
+      }
+    })
   }
 }
 

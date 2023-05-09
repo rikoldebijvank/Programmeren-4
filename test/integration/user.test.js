@@ -49,7 +49,7 @@ describe('Manage users', () => {
           checkConditions(res, 201)
           let { data } = res.body
           data.should.be.an('object')
-          data.should.has.property('id').to.be.equal(1)
+          data.should.has.property('id').to.be.equal(0)
           data.should.has.property('firstName').to.be.equal('firstNameTest1')
           data.should.has.property('lastName').to.be.equal('lastNameTest1')
           data.should.has.property('street').to.be.equal('testStreet1')
@@ -79,7 +79,7 @@ describe('Manage users', () => {
           checkConditions(res, 201)
           let { data } = res.body
           data.should.be.an('object')
-          data.should.has.property('id').to.be.equal(2)
+          data.should.has.property('id').to.be.equal(1)
           data.should.has.property('firstName').to.be.equal('firstNameTest2')
           data.should.has.property('lastName').to.be.equal('lastNameTest2')
           data.should.has.property('street').to.be.equal('testStreet2')
@@ -102,7 +102,7 @@ describe('Manage users', () => {
           checkConditions(res, 200)
           let { data } = res.body
           data.should.be.an('array')
-          data[0].should.has.property('id').to.be.equal(1)
+          data[0].should.has.property('id').to.be.equal(0)
           data[0].should.has.property('firstName').to.be.equal('firstNameTest1')
           data[0].should.has.property('lastName').to.be.equal('lastNameTest1')
           data[0].should.has.property('street').to.be.equal('testStreet1')
@@ -112,7 +112,7 @@ describe('Manage users', () => {
           data[0].should.has.property('password').to.be.equal('testPassword1')
           data[0].should.has.property('phoneNumber').to.be.equal('0612345678')
 
-          data[1].should.has.property('id').to.be.equal(2)
+          data[1].should.has.property('id').to.be.equal(1)
           data[1].should.has.property('firstName').to.be.equal('firstNameTest2')
           data[1].should.has.property('lastName').to.be.equal('lastNameTest2')
           data[1].should.has.property('street').to.be.equal('testStreet2')
@@ -135,7 +135,7 @@ describe('Manage users', () => {
           checkConditions(res, 200)
           let { data } = res.body
           data.should.be.an('array')
-          data[0].should.has.property('id').to.be.equal(1)
+          data[0].should.has.property('id').to.be.equal(0)
           data[0].should.has.property('firstName').to.be.equal('firstNameTest1')
           data[0].should.has.property('lastName').to.be.equal('lastNameTest1')
           data[0].should.has.property('street').to.be.equal('testStreet1')
@@ -153,20 +153,20 @@ describe('Manage users', () => {
     it('TC-204-3 get user by id successful', (done) => {
       chai
         .request(server)
-        .get('/api/user/2')
+        .get('/api/user/1')
         .end((err, res) => {
           checkConditions(res, 200)
           let { data } = res.body
-          data.should.be.an('array')
-          data[0].should.has.property('id').to.be.equal(2)
-          data[0].should.has.property('firstName').to.be.equal('firstNameTest2')
-          data[0].should.has.property('lastName').to.be.equal('lastNameTest2')
-          data[0].should.has.property('street').to.be.equal('testStreet2')
-          data[0].should.has.property('city').to.be.equal('testCity2')
-          data[0].should.has.property('isActive').to.be.equal(false)
-          data[0].should.has.property('emailAddress').to.be.equal('test2@gmail.com')
-          data[0].should.has.property('password').to.be.equal('testPassword2')
-          data[0].should.has.property('phoneNumber').to.be.equal('0612345678')
+          data.should.be.an('object')
+          data.should.has.property('id').to.be.equal(1)
+          data.should.has.property('firstName').to.be.equal('firstNameTest2')
+          data.should.has.property('lastName').to.be.equal('lastNameTest2')
+          data.should.has.property('street').to.be.equal('testStreet2')
+          data.should.has.property('city').to.be.equal('testCity2')
+          data.should.has.property('isActive').to.be.equal(false)
+          data.should.has.property('emailAddress').to.be.equal('test2@gmail.com')
+          data.should.has.property('password').to.be.equal('testPassword2')
+          data.should.has.property('phoneNumber').to.be.equal('0612345678')
           done()
         })
     })

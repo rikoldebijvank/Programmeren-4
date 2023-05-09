@@ -11,7 +11,7 @@ module.exports = {
       if(
         user &&
         user.email &&
-        _userdb.filter((item) => item.email === user.email).length > 0
+        _userdb.filter((item) => item.emailAddress === user.email).length > 0
       ) {
         const error = 'A user with this email already exists'
         console.log(error)
@@ -32,7 +32,7 @@ module.exports = {
   getAll:(callback) => {
     console.log("Get All Users Called")
     setTimeout(() => {
-      callback(undefined, _userdb)
+      callback(_userdb)
     }, timeout)
   },
 
@@ -41,7 +41,7 @@ module.exports = {
     console.log("Get User By ID Called")
 
     setTimeout(() => {
-      let filteredUsers = _userdb.filter((item) => item.id === userId)
+      let filteredUsers = _userdb.filter((item) => item.id == userId)
       if(filteredUsers.length > 0) {
         callback(undefined, filteredUsers[0])
       } else {
@@ -57,5 +57,49 @@ module.exports = {
   // UC-205
   editById:(userId, update, callback) => {
     console.log("Edit User By ID Called")
+    let updatedUser = []
+    setTimeout(() => {
+      _userdb.forEach((item, index, array) => {
+        if(item.id == userId) {
+          array[index] = {
+            ...array[index],
+            ...update
+          }
+          updatedUser.push(array[index])
+        }
+        if(updatedUser.length > 0) {
+          callback(undefined, updatedUser)
+        } else {
+          const error = {
+            status: 404,
+            message: `User with ID ${userId} not found`
+          }
+          callback(error, undefined)
+        }
+      })
+    }, timeout)
+  },
+
+  deleteById:(userId, callback) => {
+    console.log("Delete User By ID Called")
+    let deletedUser = []
+
+    setTimeout(() => {
+      _userdb.forEach((item, index, array) => {
+        if(item.id == userId) {
+          deletedUser.push(array[index])
+          array.splice(index, 1)
+        }
+      })
+      if(deletedUser.length > 0) {
+        callback(undefined, deletedUser)
+      } else {
+        const error = {
+          status: 404,
+          message: `User with ID ${userId} not found`
+        }
+        callback(error, undefined)
+      }
+    }, timeout)
   }
 }
