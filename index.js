@@ -2,10 +2,10 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const userRouter = require('./src/routes/user.routes')
-const port = process.env.PORT || 3000
-
+require('dotenv').config()
 app.use(bodyParser.json())
 
+const port = process.env.PORT || 3000
 let mealsDatabase = []
 let mealId = 0
 
