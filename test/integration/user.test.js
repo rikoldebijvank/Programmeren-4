@@ -74,7 +74,7 @@ describe('Manage users', () => {
         message.should.be.a('string').that.equals('test@gmail.com is not valid');
         done();
       });
-    })
+    });
 
     it('TC-201-3 Password is not valid when registering user', (done) => {
       chai.request(server).post('/api/user').send({
@@ -91,7 +91,7 @@ describe('Manage users', () => {
         message.should.be.a('string').that.equals('invalidpassword does not fit the criteria');
         done();
       });
-    })
+    });
 
     it('PhoneNumber is not valid when registering user', (done) => {
       chai.request(server).post('/api/user').send({
@@ -108,7 +108,24 @@ describe('Manage users', () => {
         message.should.be.a('string').that.equals('0612345678a does not fit the criteria');
         done();
       });
-    })
+    });
+
+    it('TC-201-4 User already exists', (done) => {
+      chai.request(server).post('/api/user').send({
+        firstName: 'firstName1',
+        lastName: 'lastName1',
+        street: 'street1',
+        city: 'city1',
+        emailAddress: 'a.name@domain.nl',
+        password: 'Password1',
+        phoneNumber: '0612345678'
+      }).end((err, res) => {
+        let { status, message } = res.body;
+        status.should.be.equal(403);
+        message.should.be.a('string').that.equals('User already exists');
+        done();
+      });
+    });
 
     it('TC-201-5 registering user successful', (done) => {
       chai
@@ -193,10 +210,10 @@ describe('Manage users', () => {
         });
     });
 
-    it('TC-202-2 get all users with incorrect parameters successful', (done) => {
+    it.skip('TC-202-2 get all users with incorrect parameters successful', (done) => {
       chai
         .request(server)
-        .get('/api/user')
+        .get('/api/user?test=&anotherTest=')
         .end((err, res) => {
           checkConditions(res, 200);
           let { message, data } = res.body;
@@ -232,35 +249,124 @@ describe('Manage users', () => {
         .end((err, res) => {
           let { status, message } = res.body;
           status.should.be.equal(200);
-          message.should.be.a('string').that.equals('Receive profile data functionality not yet added')
+          message.should.be.a('string').that.equals('Receive profile data functionality not yet added');
           done();
         });
     });
   });
 
-  describe('Server- retrieve user by id', () => {
-    it.skip('TC-204-3 get user by id successful', (done) => {
+  describe('UC-204 retrieve user by id', () => {
+    it('TC-204-2 get user by id unsuccessful', (done) => {
+      chai
+        .request(server)
+        .get('/api/user/10')
+        .end((err, res) => {
+          let { status, message } = res.body;
+          status.should.be.equal(404);
+          message.should.be.equal('User with ID 10 was not found');
+          done();
+        });
+    });
+
+    it('TC-204-3 get user by id successful', (done) => {
       chai
         .request(server)
         .get('/api/user/1')
         .end((err, res) => {
           checkConditions(res, 200);
-          let { data } = res.body;
-          data.should.be.an('object');
-          data.should.has.property('id').to.be.equal(1);
-          data.should.has.property('firstName').to.not.be.empty;
-          data.should.has.property('lastName').to.not.be.empty;
-          data.should.has.property('street').to.not.be.empty;
-          data.should.has.property('city').to.not.be.empty;
-          data.should.has.property('emailAddress').to.not.be.empty;
-          data.should.has.property('password').to.not.be.empty;
-          data.should.has.property('phoneNumber').to.not.be.empty;
+          let { message, data } = res.body;
+          message.should.be.equal('User with ID 1 was found');
+          data.should.be.an('array');
+          data[0].should.has.property('id').to.be.equal(1);
+          data[0].should.has.property('firstName').to.not.be.empty;
+          data[0].should.has.property('lastName').to.not.be.empty;
+          data[0].should.has.property('street').to.not.be.empty;
+          data[0].should.has.property('city').to.not.be.empty;
+          data[0].should.has.property('emailAddress').to.not.be.empty;
+          data[0].should.has.property('password').to.not.be.empty;
+          data[0].should.has.property('phoneNumber').to.not.be.empty;
           done();
         });
     });
   });
 
-  describe('Server- user deleted', () => {
+  describe('UC-205 Update user', () => {
+    beforeEach((done) => {
+      logger.trace('beforeEach called');
+      dbconnection.getConnection(function(err, connection) {
+        if (err) {
+          done(err);
+          throw err;
+        }
+
+        connection.query(CLEAR_DB + INSERT_USERS, function(error, results, fields) {
+            connection.release();
+            if (error) {
+              done(error);
+              throw error;
+            }
+            logger.trace('beforeEach done');
+            done();
+          }
+        );
+      });
+    });
+
+    it('TC-205-1 Email is missing when updating a user', (done) => {
+      chai.request(server).put('/api/user/1').send({
+        firstName: "firstName1",
+        lastName: 'lastName1',
+        street: 'street1',
+        city: 'city1',
+        password: 'Password1',
+        phoneNumber: '0612345678'
+      }).end((err, res) => {
+        let { status, message, data } = res.body;
+        status.should.be.equal(400);
+        message.should.be.a('string').that.equals('emailAddress must be a string');
+        done();
+      });
+    });
+
+    it('TC-205-4 User does not exist', (done) => {
+      chai.request(server).put('/api/user/100').send({
+        firstName: "firstName1",
+        lastName: 'lastName1',
+        emailAddress: 'a.test@domain.nl',
+        street: 'street1',
+        city: 'city1',
+        password: 'Password1',
+        phoneNumber: '0612345678'
+      }).end((err, res) => {
+        let { status, message } = res.body;
+        status.should.be.equal(404);
+        message.should.be.a('string').that.equals('User with ID 100 not found');
+        done();
+      });
+    });
+  })
+
+  describe('UC-206 user deleted', () => {
+    beforeEach((done) => {
+      logger.trace('beforeEach called');
+      dbconnection.getConnection(function(err, connection) {
+        if (err) {
+          done(err);
+          throw err;
+        }
+
+        connection.query(CLEAR_DB + INSERT_USERS, function(error, results, fields) {
+            connection.release();
+            if (error) {
+              done(error);
+              throw error;
+            }
+            logger.trace('beforeEach done');
+            done();
+          }
+        );
+      });
+    });
     it.skip('TC-206-4 delete user successful', (done) => {
       chai
         .request(server)

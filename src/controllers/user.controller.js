@@ -64,7 +64,15 @@ let controller = {
       if (connection) {
         connection.query(query, function(error, results, fields) {
           connection.release();
-          if (error) throw error;
+          if(error) {
+            if (error.sqlMessage.includes('Duplicate')) {
+              res.status(403).json({
+                status: 403,
+                message: "User already exists"
+              })
+              return
+            } else throw error;
+          }
           res.status(201).json({
             status: 201,
             message: 'User successfully registered',
@@ -154,11 +162,18 @@ let controller = {
       connection.query('SELECT * FROM user WHERE id = ' + userId, function(error, results, fields) {
         connection.release();
         if (error) throw error;
-        res.status(200).json({
-          status: 200,
-          message: `User with ID ${userId} was found`,
-          data: results
-        });
+        if(results.length === 0) {
+          res.status(404).json({
+            status: 404,
+            message: `User with ID ${userId} was not found`
+          })
+        } else {
+          res.status(200).json({
+            status: 200,
+            message: `User with ID ${userId} was found`,
+            data: results
+          });
+        }
       });
     });
   },
@@ -169,7 +184,7 @@ let controller = {
     const user = req.body;
     const query = {
       sql: 'UPDATE `user` SET firstName=?, lastName=?, emailAddress=?, street=?, city=?, isActive=?, password=?, phoneNumber=? WHERE id=' + userId + ';',
-      values: [user.firstName, user.lastName, user.emailAddress, user.street, user.city, user.isActive, user.password, user.phoneNumber],
+      values: [user.firstName, user.lastName, user.emailAddress, user.street, user.city, 1, user.password, user.phoneNumber],
       timeout: 2000
     };
 
@@ -184,6 +199,13 @@ let controller = {
         connection.query(query, function(error, results, fields) {
           connection.release();
           if (error) throw error;
+          if(results.affectedRows === 0) {
+            res.status(404).json({
+              status: 404,
+              message: `User with ID ${userId} not found`,
+            });
+            return;
+          }
           res.status(200).json({
             status: 200,
             message: `User with ID ${userId} edited`,
