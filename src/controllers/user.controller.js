@@ -15,14 +15,15 @@ let controller = {
       assert(typeof emailAddress === 'string', 'emailAddress must be a string');
       emailValidation(emailAddress);
       assert(typeof password === 'string', 'password must be a string');
-      passwordValidation(password)
+      passwordValidation(password);
       assert(typeof phoneNumber === 'string', 'phoneNumber must be a string');
-      phoneNumberValidation(phoneNumber)
+      phoneNumberValidation(phoneNumber);
       next();
     } catch (err) {
       const error = {
         status: 400,
-        message: err.message
+        message: err.message,
+        data: []
       };
       next(error);
     }
@@ -64,13 +65,13 @@ let controller = {
       if (connection) {
         connection.query(query, function(error, results, fields) {
           connection.release();
-          if(error) {
+          if (error) {
             if (error.sqlMessage.includes('Duplicate')) {
               res.status(403).json({
                 status: 403,
-                message: "User already exists"
-              })
-              return
+                message: 'User already exists'
+              });
+              return;
             } else throw error;
           }
           res.status(201).json({
@@ -128,7 +129,8 @@ let controller = {
   getUserProfile: (req, res) => {
     res.status(200).json({
       status: 200,
-      message: 'Receive profile data functionality not yet added'
+      message: 'Receive profile data functionality not yet added',
+      data: []
     });
   },
 
@@ -162,11 +164,12 @@ let controller = {
       connection.query('SELECT * FROM user WHERE id = ' + userId, function(error, results, fields) {
         connection.release();
         if (error) throw error;
-        if(results.length === 0) {
+        if (results.length === 0) {
           res.status(404).json({
             status: 404,
-            message: `User with ID ${userId} was not found`
-          })
+            message: `User with ID ${userId} was not found`,
+            data: []
+          });
         } else {
           res.status(200).json({
             status: 200,
@@ -199,10 +202,11 @@ let controller = {
         connection.query(query, function(error, results, fields) {
           connection.release();
           if (error) throw error;
-          if(results.affectedRows === 0) {
+          if (results.affectedRows === 0) {
             res.status(404).json({
               status: 404,
               message: `User with ID ${userId} not found`,
+              data: []
             });
             return;
           }
@@ -259,7 +263,8 @@ let controller = {
         if (error) throw error;
         res.status(200).json({
           status: 200,
-          message: `User with ID ${userId} was deleted`
+          message: `User with ID ${userId} was deleted`,
+          data: []
         });
       });
     });
@@ -277,16 +282,16 @@ function emailValidation(emailAddress) {
 function passwordValidation(password) {
   const regex = /(?=[A-Za-z0-9=]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$/gm;
   const checkPassword = password.match(regex);
-  if(checkPassword == null) {
-    throw new Error(`${password} does not fit the criteria`)
+  if (checkPassword == null) {
+    throw new Error(`${password} does not fit the criteria`);
   }
 }
 
 function phoneNumberValidation(phoneNumber) {
   const regex = /^06( )?(-)?[0-9]{8}$/gm;
   const checkPhoneNumber = phoneNumber.match(regex);
-  if(checkPhoneNumber == null) {
-    throw new Error(`${phoneNumber} does not fit the criteria`)
+  if (checkPhoneNumber == null) {
+    throw new Error(`${phoneNumber} does not fit the criteria`);
   }
 }
 

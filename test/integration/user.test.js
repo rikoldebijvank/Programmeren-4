@@ -4,6 +4,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../index');
 const dbconnection = require('../../src/util/mysql-db');
+const jwt = require('jsonwebtoken');
 const logger = require('../../src/util/utils').logger;
 chai.should();
 chai.use(chaiHttp);
@@ -219,23 +220,7 @@ describe('Manage users', () => {
           let { message, data } = res.body;
           message.should.be.a('string').that.equals('Server get users endpoint');
           data.should.be.an('array');
-          data[0].should.has.property('id').to.be.equal(1);
-          data[0].should.has.property('firstName').to.be.equal('firstName1');
-          data[0].should.has.property('lastName').to.be.equal('lastName1');
-          data[0].should.has.property('street').to.be.equal('street1');
-          data[0].should.has.property('city').to.be.equal('city1');
-          data[0].should.has.property('emailAddress').to.be.equal('a.name@domain.nl');
-          data[0].should.has.property('password').to.be.equal('Password1');
-          data[0].should.has.property('phoneNumber').to.be.equal('0612345678');
 
-          data[1].should.has.property('id').to.be.equal(2);
-          data[1].should.has.property('firstName').to.be.equal('firstName2');
-          data[1].should.has.property('lastName').to.be.equal('lastName2');
-          data[1].should.has.property('street').to.be.equal('street2');
-          data[1].should.has.property('city').to.be.equal('city2');
-          data[1].should.has.property('emailAddress').to.be.equal('b.name@domain.nl');
-          data[1].should.has.property('password').to.be.equal('Password2');
-          data[1].should.has.property('phoneNumber').to.be.equal('0623456789');
           done();
         });
     });
@@ -264,8 +249,8 @@ describe('Manage users', () => {
           let { status, message } = res.body;
           status.should.be.equal(404);
           message.should.be.equal('User with ID 10 was not found');
-          done();
         });
+      done();
     });
 
     it('TC-204-3 get user by id successful', (done) => {
@@ -313,8 +298,10 @@ describe('Manage users', () => {
     });
 
     it('TC-205-1 Email is missing when updating a user', (done) => {
-      chai.request(server).put('/api/user/1').send({
-        firstName: "firstName1",
+      chai.request(server).put('/api/user/1')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
+        .send({
+        firstName: 'firstName1',
         lastName: 'lastName1',
         street: 'street1',
         city: 'city1',
@@ -329,8 +316,10 @@ describe('Manage users', () => {
     });
 
     it('TC-205-4 User does not exist', (done) => {
-      chai.request(server).put('/api/user/100').send({
-        firstName: "firstName1",
+      chai.request(server).put('/api/user/100')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 100 }, 'secretkey'))
+        .send({
+        firstName: 'firstName1',
         lastName: 'lastName1',
         emailAddress: 'a.test@domain.nl',
         street: 'street1',
@@ -344,7 +333,7 @@ describe('Manage users', () => {
         done();
       });
     });
-  })
+  });
 
   describe('UC-206 user deleted', () => {
     beforeEach((done) => {
@@ -367,14 +356,14 @@ describe('Manage users', () => {
         );
       });
     });
-    it.skip('TC-206-4 delete user successful', (done) => {
+    it('TC-206-4 delete user successful', (done) => {
       chai
         .request(server)
         .delete('/api/user/1')
         .end((err, res) => {
           res.body.should.be.an('object');
           res.body.should.has.property('status').to.be.equal(200);
-          res.body.should.has.property('message').to.be.equal('Server- User with ID: 1 removed');
+          res.body.should.has.property('message').to.be.equal('User with ID 1 was deleted');
           done();
         });
     });

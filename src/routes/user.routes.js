@@ -1,20 +1,21 @@
-const express = require('express')
-const router = express.Router()
-const userController = require('../controllers/user.controller')
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/user.controller');
+const authController = require('../controllers/auth.controller');
 
 // UC-201
-router.post("/user", userController.validateUser, userController.addUser)
+router.post('/', userController.validateUser, userController.addUser);
 
 // UC-202
-router.get("/user", userController.getUserByIdWithQuery)
+router.get('/', userController.getUserByIdWithQuery);
 
 // UC-203
-router.get("/user/profile", userController.getUserProfile)
+router.get('/profile', userController.getUserProfile);
 
 // UC-204-206
-router.route("/user/:id")
+router.route('/:id')
   .get(userController.getUserById)
-  .put(userController.validateUser, userController.editUserById)
-  .delete(userController.deleteUserById)
+  .put(authController.validateToken, userController.validateUser, userController.editUserById)
+  .delete(userController.deleteUserById);
 
-module.exports = router
+module.exports = router;
