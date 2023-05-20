@@ -305,16 +305,30 @@ let controller = {
             message: err.code
           });
         }
-
-        connection.query('DELETE cookId FROM `meal` WHERE cookId = ' + userId + '; DELETE FROM `user` WHERE id = ' + userId, function(error, results, fields) {
+        let cookId = null;
+        let query = 'DELETE FROM `user` WHERE id = ' + userId;
+        connection.query('SELECT cookId FROM `meal` WHERE cookId = ' + userId, function(error, results, field) {
           connection.release();
-          if (error) throw error;
-          res.status(200).json({
-            status: 200,
-            message: `User with ID ${userId} was deleted`,
-            data: []
-          });
-        });
+          if(error) throw error;
+          console.log(results)
+          try {
+            cookId = results[0].cookId;
+          } catch {
+            if(cookId) {
+              query = 'UPDATE `meal` SET cookId = NULL WHERE cookId =' + userId + '; DELETE FROM `user` WHERE id = ' + userId;
+            }
+
+            connection.query(query, function(error, results, fields) {
+              connection.release();
+              if (error) throw error;
+              res.status(200).json({
+                status: 200,
+                message: `User with ID ${userId} was deleted`,
+                data: []
+              });
+            });
+          }
+        })
       });
     } else {
       res.status(403).json({

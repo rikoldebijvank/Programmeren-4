@@ -332,8 +332,8 @@ describe('Manage users', () => {
         phoneNumber: '0612345678'
       }).end((err, res) => {
         let { status, message } = res.body;
-        status.should.be.equal(404);
-        message.should.be.a('string').that.equals('User with ID 100 not found');
+        status.should.be.equal(403);
+        message.should.be.a('string').that.equals('Not authorized');
         done();
       });
     });
