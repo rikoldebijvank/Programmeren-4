@@ -50,9 +50,9 @@ let controller = {
 
     const user = req.body;
     const query = {
-      sql: 'INSERT INTO `user` (`firstName`, `lastName`, `emailAddress`, `password`, `street`, `city`, `phoneNumber`) ' +
-        'VALUES (?, ?, ?, ?, ?, ?, ?)',
-      values: [user.firstName, user.lastName, user.emailAddress, user.password, user.street, user.city, user.phoneNumber],
+      sql: 'INSERT INTO `user` (`firstName`, `lastName`, `isActive`, `emailAddress`, `password`, `street`, `city`, `phoneNumber`) ' +
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      values: [user.firstName, user.lastName, user.isActive || 0, user.emailAddress, user.password, user.street, user.city, user.phoneNumber]
     };
 
     pool.getConnection(function(err, connection) {
@@ -90,11 +90,11 @@ let controller = {
   // UC-202
   getUserByIdWithQuery: (req, res, next) => {
     const queryField = Object.entries(req.query);
-    const validQueries = ['firstName', 'lastName', 'street', 'city', 'isActive', 'emailAddress', 'password', 'phoneNumber']
+    const validQueries = ['firstName', 'lastName', 'street', 'city', 'isActive', 'emailAddress', 'password', 'phoneNumber'];
     let query = '';
     let message = '';
 
-    if(queryField.length === 0 || validQueries.includes(queryField[0][0]) || validQueries.includes(queryField[1][0])) {
+    if (queryField.length === 0 || validQueries.includes(queryField[0][0]) || validQueries.includes(queryField[1][0])) {
       if (queryField.length === 2) {
         query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
         message = `Get user filtered by ${queryField[0][0]}`;
@@ -110,7 +110,7 @@ let controller = {
         status: 200,
         message: 'Invalid query parameter',
         data: []
-      })
+      });
     }
 
     pool.getConnection(function(err, connection) {
@@ -201,8 +201,8 @@ let controller = {
             data: []
           });
         } else {
-          if(userId != req.userId) {
-            let { password, ...info } = results[0]
+          if (userId != req.userId) {
+            let { password, ...info } = results[0];
             res.status(200).json({
               status: 200,
               message: `User with ID ${userId} was found`,
@@ -230,7 +230,7 @@ let controller = {
       timeout: 2000
     };
 
-    if(userId == req.userId) {
+    if (userId == req.userId) {
       pool.getConnection(function(err, connection) {
         if (err) {
           next({
@@ -263,7 +263,7 @@ let controller = {
         status: 403,
         message: 'Not authorized',
         data: []
-      })
+      });
     }
 
     // userDatabase.editById(id, req.body, (error, result) => {
@@ -283,7 +283,7 @@ let controller = {
 
   // UC-206
   deleteUserById: (req, res, next) => {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
     // userDatabase.deleteById(id, (error, result) => {
     //   if (error) {
     //     res.status(404).json({
@@ -297,7 +297,7 @@ let controller = {
     //   }
     // })
 
-    if (userId == req.userId) {
+    if (userId === req.userId) {
       pool.getConnection(function(err, connection) {
         if (err) {
           next({
@@ -309,12 +309,12 @@ let controller = {
         let query = 'DELETE FROM `user` WHERE id = ' + userId;
         connection.query('SELECT cookId FROM `meal` WHERE cookId = ' + userId, function(error, results, field) {
           connection.release();
-          if(error) throw error;
-          console.log(results)
+          if (error) throw error;
+          console.log(results);
           try {
             cookId = results[0].cookId;
           } catch {
-            if(cookId) {
+            if (cookId) {
               query = 'UPDATE `meal` SET cookId = NULL WHERE cookId =' + userId + '; DELETE FROM `user` WHERE id = ' + userId;
             }
 
@@ -328,14 +328,14 @@ let controller = {
               });
             });
           }
-        })
+        });
       });
     } else {
       res.status(403).json({
         status: 403,
         message: 'Not authorized',
         data: []
-      })
+      });
     }
   }
 };
