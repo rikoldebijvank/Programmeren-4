@@ -156,7 +156,7 @@ let controller = {
         } else {
           res.status(200).json({
             status: 200,
-            message: `Get profile from user with ID ${req.userId} completed`,
+            message: `Profile found`,
             data: results
           });
         }
