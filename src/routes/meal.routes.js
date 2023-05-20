@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const mealController = require('../controllers/meal.controller');
+const authController = require('../controllers/auth.controller');
 
 // UC-301
-router.post('/', mealController.addMeal);
+router.post('/', authController.validateToken, mealController.validateMeal, mealController.addMeal);
 
 // UC-303
 router.get('/', mealController.getAll);

@@ -30,7 +30,7 @@ module.exports = {
             // Haal password eruit
             const { password, ...user } = results[0]
             // Email en password zijn correct
-            jwt.sign({ userid: user.id }, process.env.JWT_SECRET, { expiresIn: '2d' }, function(err, token) {
+            jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' }, function(err, token) {
               if (err) next(err);
               if (token) {
                 res.status(200).json({
@@ -43,6 +43,12 @@ module.exports = {
                 });
               }
             });
+          } else {
+            res.status(400).json({
+              status: 400,
+              message: 'Not authorized',
+              data: []
+            })
           }
         } else {
           res.status(404).json({
@@ -56,9 +62,11 @@ module.exports = {
   },
 
   validateLogin: (req, res, next) => {
+    let info = req.body;
+    let { emailAddress, password } = info;
     try {
-      assert(typeof req.body.emailAddress === 'string', 'Email must be a string');
-      assert(typeof req.body.password === 'string', 'Password must be a string');
+      assert(typeof emailAddress === 'string', 'Email must be a string');
+      assert(typeof password === 'string', 'Password must be a string');
       next();
     } catch (err) {
       const error = {

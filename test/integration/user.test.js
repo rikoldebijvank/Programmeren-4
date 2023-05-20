@@ -185,6 +185,7 @@ describe('Manage users', () => {
       chai
         .request(server)
         .get('/api/user')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           checkConditions(res, 200);
           let { message, data } = res.body;
@@ -231,10 +232,11 @@ describe('Manage users', () => {
       chai
         .request(server)
         .get('/api/user/profile')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           let { status, message } = res.body;
           status.should.be.equal(200);
-          message.should.be.a('string').that.equals('Receive profile data functionality not yet added');
+          message.should.be.a('string').that.equals('Get profile from user with ID 1 completed');
           done();
         });
     });
@@ -245,18 +247,20 @@ describe('Manage users', () => {
       chai
         .request(server)
         .get('/api/user/10')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           let { status, message } = res.body;
           status.should.be.equal(404);
           message.should.be.equal('User with ID 10 was not found');
+          done();
         });
-      done();
     });
 
     it('TC-204-3 get user by id successful', (done) => {
       chai
         .request(server)
         .get('/api/user/1')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           checkConditions(res, 200);
           let { message, data } = res.body;
@@ -317,7 +321,7 @@ describe('Manage users', () => {
 
     it('TC-205-4 User does not exist', (done) => {
       chai.request(server).put('/api/user/100')
-        .set('authorization', 'Bearer ' + jwt.sign({ id: 100 }, 'secretkey'))
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey'))
         .send({
         firstName: 'firstName1',
         lastName: 'lastName1',
@@ -360,6 +364,7 @@ describe('Manage users', () => {
       chai
         .request(server)
         .delete('/api/user/1')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           res.body.should.be.an('object');
           res.body.should.has.property('status').to.be.equal(200);

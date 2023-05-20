@@ -28,6 +28,7 @@ let controller = {
       next(error);
     }
   },
+
   // UC-201
   addUser: (req, res, next) => {
     // userDatabase.add(req.body, (error, result) => {
@@ -52,7 +53,6 @@ let controller = {
       sql: 'INSERT INTO `user` (`firstName`, `lastName`, `emailAddress`, `password`, `street`, `city`, `phoneNumber`) ' +
         'VALUES (?, ?, ?, ?, ?, ?, ?)',
       values: [user.firstName, user.lastName, user.emailAddress, user.password, user.street, user.city, user.phoneNumber],
-      timeout: 2000
     };
 
     pool.getConnection(function(err, connection) {
@@ -90,18 +90,27 @@ let controller = {
   // UC-202
   getUserByIdWithQuery: (req, res, next) => {
     const queryField = Object.entries(req.query);
+    const validQueries = ['firstName', 'lastName', 'street', 'city', 'isActive', 'emailAddress', 'password', 'phoneNumber']
     let query = '';
     let message = '';
 
-    if (queryField.length === 2) {
-      query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
-      message = `Get user filtered by ${queryField[0][0]}`;
-    } else if (queryField.length === 1) {
-      query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\';';
-      message = `Get user filtered by ${queryField[0][0]}`;
+    if(queryField.length === 0 || validQueries.includes(queryField[0][0]) || validQueries.includes(queryField[1][0])) {
+      if (queryField.length === 2) {
+        query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
+        message = `Get user filtered by ${queryField[0][0]}`;
+      } else if (queryField.length === 1) {
+        query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\';';
+        message = `Get user filtered by ${queryField[0][0]}`;
+      } else {
+        query = 'SELECT * FROM user';
+        message = 'Server get users endpoint';
+      }
     } else {
-      query = 'SELECT * FROM user';
-      message = 'Server get users endpoint';
+      res.status(200).json({
+        status: 200,
+        message: 'Invalid query parameter',
+        data: []
+      })
     }
 
     pool.getConnection(function(err, connection) {
@@ -127,10 +136,31 @@ let controller = {
 
   // UC-203
   getUserProfile: (req, res) => {
-    res.status(200).json({
-      status: 200,
-      message: 'Receive profile data functionality not yet added',
-      data: []
+    pool.getConnection(function(err, connection) {
+      if (err) {
+        next({
+          status: 500,
+          message: err.code
+        });
+      }
+
+      connection.query('SELECT * FROM user WHERE id = ' + req.userId, function(error, results, fields) {
+        connection.release();
+        if (error) throw error;
+        if (results.length === 0) {
+          res.status(404).json({
+            status: 404,
+            message: `User with ID ${req.userId} was not found`,
+            data: []
+          });
+        } else {
+          res.status(200).json({
+            status: 200,
+            message: `Get profile from user with ID ${req.userId} completed`,
+            data: results
+          });
+        }
+      });
     });
   },
 
@@ -171,11 +201,20 @@ let controller = {
             data: []
           });
         } else {
-          res.status(200).json({
-            status: 200,
-            message: `User with ID ${userId} was found`,
-            data: results
-          });
+          if(userId != req.userId) {
+            let { password, ...info } = results[0]
+            res.status(200).json({
+              status: 200,
+              message: `User with ID ${userId} was found`,
+              data: info
+            });
+          } else {
+            res.status(200).json({
+              status: 200,
+              message: `User with ID ${userId} was found`,
+              data: results
+            });
+          }
         }
       });
     });
@@ -191,33 +230,41 @@ let controller = {
       timeout: 2000
     };
 
-    pool.getConnection(function(err, connection) {
-      if (err) {
-        next({
-          status: 500,
-          message: err.code
-        });
-      }
-      if (connection) {
-        connection.query(query, function(error, results, fields) {
-          connection.release();
-          if (error) throw error;
-          if (results.affectedRows === 0) {
-            res.status(404).json({
-              status: 404,
-              message: `User with ID ${userId} not found`,
-              data: []
-            });
-            return;
-          }
-          res.status(200).json({
-            status: 200,
-            message: `User with ID ${userId} edited`,
-            data: user
+    if(userId == req.userId) {
+      pool.getConnection(function(err, connection) {
+        if (err) {
+          next({
+            status: 500,
+            message: err.code
           });
-        });
-      }
-    });
+        }
+        if (connection) {
+          connection.query(query, function(error, results, fields) {
+            connection.release();
+            if (error) throw error;
+            if (results.affectedRows === 0) {
+              res.status(404).json({
+                status: 404,
+                message: `User with ID ${userId} not found`,
+                data: []
+              });
+              return;
+            }
+            res.status(200).json({
+              status: 200,
+              message: `User with ID ${userId} edited`,
+              data: user
+            });
+          });
+        }
+      });
+    } else {
+      res.status(403).json({
+        status: 403,
+        message: 'Not authorized',
+        data: []
+      })
+    }
 
     // userDatabase.editById(id, req.body, (error, result) => {
     //   if (error) {
@@ -250,24 +297,32 @@ let controller = {
     //   }
     // })
 
-    pool.getConnection(function(err, connection) {
-      if (err) {
-        next({
-          status: 500,
-          message: err.code
-        });
-      }
+    if (userId == req.userId) {
+      pool.getConnection(function(err, connection) {
+        if (err) {
+          next({
+            status: 500,
+            message: err.code
+          });
+        }
 
-      connection.query('DELETE FROM `user` WHERE id = ' + userId, function(error, results, fields) {
-        connection.release();
-        if (error) throw error;
-        res.status(200).json({
-          status: 200,
-          message: `User with ID ${userId} was deleted`,
-          data: []
+        connection.query('DELETE cookId FROM `meal` WHERE cookId = ' + userId + '; DELETE FROM `user` WHERE id = ' + userId, function(error, results, fields) {
+          connection.release();
+          if (error) throw error;
+          res.status(200).json({
+            status: 200,
+            message: `User with ID ${userId} was deleted`,
+            data: []
+          });
         });
       });
-    });
+    } else {
+      res.status(403).json({
+        status: 403,
+        message: 'Not authorized',
+        data: []
+      })
+    }
   }
 };
 
