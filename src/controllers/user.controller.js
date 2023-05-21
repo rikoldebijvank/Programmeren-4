@@ -223,8 +223,8 @@ let controller = {
     const userId = parseInt(req.params.id);
     const user = req.body;
     const query = {
-      sql: 'UPDATE `user` SET firstName=?, lastName=?, emailAddress=?, street=?, city=?, isActive=?, password=?, phoneNumber=? WHERE id=' + userId + ';',
-      values: [user.firstName, user.lastName, user.emailAddress, user.street, user.city, 1, user.password, user.phoneNumber],
+      sql: 'UPDATE `user` SET firstName=?, lastName=?, emailAddress=?, street=?, city=?, password=?, phoneNumber=? WHERE id=' + userId + ';',
+      values: [user.firstName, user.lastName, user.emailAddress, user.street, user.city, user.password, user.phoneNumber],
       timeout: 2000
     };
 

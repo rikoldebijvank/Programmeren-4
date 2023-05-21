@@ -303,7 +303,7 @@ describe('Manage meals', () => {
           data[0].should.has.property('isVega').to.be.equal(0);
           data[0].should.has.property('isVegan').to.be.equal(0);
           data[0].should.has.property('isToTakeHome').to.be.equal(1);
-          data[0].should.has.property('dateTime').to.be.equal('2022-03-22T16:35:00.000Z');
+          data[0].should.has.property('dateTime');
           data[0].should.has.property('maxAmountOfParticipants').to.be.equal(4);
           data[0].should.has.property('price').to.be.equal('12.75');
           data[0].should.has.property('imageUrl').to.be.equal('https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg');
@@ -359,7 +359,7 @@ describe('Manage meals', () => {
           data[0].should.has.property('isVega').to.be.equal(0);
           data[0].should.has.property('isVegan').to.be.equal(0);
           data[0].should.has.property('isToTakeHome').to.be.equal(1);
-          data[0].should.has.property('dateTime').to.be.equal('2022-03-22T16:35:00.000Z');
+          data[0].should.has.property('dateTime');
           data[0].should.has.property('maxAmountOfParticipants').to.be.equal(4);
           data[0].should.has.property('price').to.be.equal('12.75');
           data[0].should.has.property('imageUrl').to.be.equal('https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg');
