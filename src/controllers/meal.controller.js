@@ -252,6 +252,7 @@ let controller = {
 
           if (results.length > 0) {
             let { cookId, ...mealInfo } = results[0];
+            logger.debug(cookId);
             connection.query('SELECT * FROM `user` WHERE id=' + cookId, function(error, newResults, fields) {
               connection.release();
               if (error) throw error;
