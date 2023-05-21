@@ -212,16 +212,16 @@ describe('Manage users', () => {
         });
     });
 
-    it.skip('TC-202-2 get all users with incorrect parameters successful', (done) => {
+    it('TC-202-2 get all users with incorrect parameters successful', (done) => {
       chai
         .request(server)
         .get('/api/user?test=&anotherTest=')
+        .set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey' ))
         .end((err, res) => {
           checkConditions(res, 200);
           let { message, data } = res.body;
-          message.should.be.a('string').that.equals('Server get users endpoint');
+          message.should.be.a('string').that.equals('Invalid query parameters');
           data.should.be.an('array');
-
           done();
         });
     });
@@ -236,7 +236,7 @@ describe('Manage users', () => {
         .end((err, res) => {
           let { status, message } = res.body;
           status.should.be.equal(200);
-          message.should.be.a('string').that.equals('Get profile from user with ID 1 completed');
+          message.should.be.a('string').that.equals('Profile found');
           done();
         });
     });

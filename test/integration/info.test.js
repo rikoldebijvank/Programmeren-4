@@ -10,7 +10,10 @@ describe('Server-info', () => {
       .request(server)
       .get('/api/info')
       .end((err, res) => {
-        checkConditions(res, 200);
+        res.body.should.be.an('object');
+        res.body.should.has.property('status').to.be.equal(200);
+        res.body.should.has.property('message');
+        res.body.should.has.property('data');
         let { data } = res.body;
         data.should.be.an('object');
         data.should.has.property('studentName').to.be.equal('Rik Olde Bijvank');
@@ -19,10 +22,3 @@ describe('Server-info', () => {
       });
   });
 });
-
-const checkConditions = function(res, status) {
-  res.body.should.be.an('object');
-  res.body.should.has.property('status').to.be.equal(status);
-  res.body.should.has.property('message');
-  res.body.should.has.property('data');
-};

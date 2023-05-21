@@ -94,23 +94,21 @@ let controller = {
     let query = '';
     let message = '';
 
-    if (queryField.length === 0 || validQueries.includes(queryField[0][0]) || validQueries.includes(queryField[1][0])) {
-      if (queryField.length === 2) {
-        query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
-        message = `Get user filtered by ${queryField[0][0]}`;
-      } else if (queryField.length === 1) {
-        query = 'SELECT * FROM user WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\';';
-        message = `Get user filtered by ${queryField[0][0]}`;
-      } else {
-        query = 'SELECT * FROM user';
-        message = 'Server get users endpoint';
-      }
+    if(queryField.length === 0) {
+      query = 'SELECT * FROM user';
+      message = 'Server get users endpoint';
+    } else if (queryField.length >= 2 && (!validQueries.includes(queryField[0][0]) || !validQueries.includes(queryField[1][0]))) {
+      query = 'SELECT * from `user` WHERE 1=0'
+      message = 'Invalid query parameters';
+    } else if (queryField.length === 2 && (validQueries.includes(queryField[0][0]) && validQueries.includes(queryField[1][0]))) {
+      query = 'SELECT * FROM `user` WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
+      message = `Get user filtered by ${queryField[0][0]} and ${queryField[1][0]}`;
+    } else if (queryField.length === 1 && validQueries.includes(queryField[0][0])) {
+      query = 'SELECT * FROM `user` WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\';';
+      message = `Get user filtered by ${queryField[0][0]}`;
     } else {
-      res.status(200).json({
-        status: 200,
-        message: 'Invalid query parameter',
-        data: []
-      });
+      query = 'SELECT * from `user` WHERE 1=0'
+      message = 'Invalid query parameters';
     }
 
     pool.getConnection(function(err, connection) {
@@ -310,14 +308,20 @@ let controller = {
         connection.query('SELECT cookId FROM `meal` WHERE cookId = ' + userId, function(error, results, field) {
           connection.release();
           if (error) throw error;
-          console.log(results);
           try {
             cookId = results[0].cookId;
+            query = 'UPDATE `meal` SET cookId = NULL WHERE cookId =' + userId + '; DELETE FROM `user` WHERE id = ' + userId;
+            connection.query(query, function(error, results, fields) {
+              connection.release();
+              if (error) throw error;
+              res.status(200).json({
+                status: 200,
+                message: `User with ID ${userId} was deleted`,
+                data: []
+              });
+            });
           } catch {
-            if (cookId) {
-              query = 'UPDATE `meal` SET cookId = NULL WHERE cookId =' + userId + '; DELETE FROM `user` WHERE id = ' + userId;
-            }
-
+            query = 'DELETE FROM `user` WHERE id = ' + userId;
             connection.query(query, function(error, results, fields) {
               connection.release();
               if (error) throw error;

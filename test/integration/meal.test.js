@@ -26,7 +26,7 @@ describe('Manage meals', () => {
     it('TC-301-1 Required field is missing', (done) => {
       chai.request(server).post('/api/meal').send({}).set('authorization', 'Bearer ' + jwt.sign({ id: 1 }, 'secretkey'))
         .end((err, result) => {
-
+          done();
         });
     });
   });
