@@ -1,6 +1,7 @@
 const assert = require('assert');
 const mealDatabase = require('../util/inmemdb_user');
 const pool = require('../util/mysql-db');
+const logger = require('../util/utils').logger;
 
 let controller = {
   validateMealWhenAdded: (req, res, next) => {
@@ -19,6 +20,7 @@ let controller = {
         message: err.message,
         data: []
       };
+      logger.error(error);
       next(error);
     }
   },
@@ -36,6 +38,7 @@ let controller = {
         message: err.message,
         data: []
       };
+      logger.error(error);
       next(error);
     }
   },
@@ -57,6 +60,7 @@ let controller = {
       description: meal.description,
       allergenes: meal.allergenes || ''
     };
+    logger.debug(`meal info: ${meal}`);
     const query = {
       sql: 'INSERT INTO `meal` (`isVega`, `isVegan`, `isToTakeHome`, `dateTime`, `maxAmountOfParticipants`, `price`, `imageUrl`, `cookId`, `name`, `description`, `allergenes`) ' +
         ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -129,6 +133,7 @@ let controller = {
       query.values.push(meal.allergenes);
     }
     query.sql += ' WHERE id=' + mealId;
+    logger.debug(`query sql string: ${query.sql}`);
 
     pool.getConnection(function(err, connection) {
       if (err) {
@@ -140,6 +145,7 @@ let controller = {
       if (connection) {
         connection.query('SELECT id, cookId FROM `meal` WHERE id=' + mealId, function(error, results, fields) {
           if (error) throw error;
+          logger.debug(results);
           if (results.length === 0) {
             connection.release();
             res.status(404).json({
@@ -161,6 +167,7 @@ let controller = {
               });
             });
           } else {
+            logger.info('User did not make the meal')
             connection.release();
             res.status(403).json({
               status: 403,
@@ -271,7 +278,7 @@ let controller = {
               }
             });
           } else {
-            connection.release()
+            connection.release();
             res.status(404).json({
               status: 404,
               message: `Meal with ID ${mealId} was not found`,
