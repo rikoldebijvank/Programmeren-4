@@ -433,7 +433,7 @@ describe('Manage meals', () => {
           done();
         });
     });
-  })
+  });
 });
 
 const checkConditions = function(res, status) {
