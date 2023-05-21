@@ -69,7 +69,8 @@ let controller = {
             if (error.sqlMessage.includes('Duplicate')) {
               res.status(403).json({
                 status: 403,
-                message: 'User already exists'
+                message: 'User already exists',
+                data: []
               });
               return;
             } else throw error;

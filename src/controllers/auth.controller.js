@@ -7,7 +7,7 @@ module.exports = {
   login: (req, res, next) => {
     const { emailAddress, password } = req.body;
     const query = {
-      sql: 'SELECT id, firstName, lastName, emailAddress, password FROM user WHERE emailAddress=?',
+      sql: 'SELECT * FROM user WHERE emailAddress=?',
       values: [emailAddress]
     };
 
@@ -44,8 +44,8 @@ module.exports = {
               }
             });
           } else {
-            res.status(400).json({
-              status: 400,
+            res.status(403).json({
+              status: 403,
               message: 'Not authorized',
               data: []
             })
