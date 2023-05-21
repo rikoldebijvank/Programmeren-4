@@ -53,7 +53,7 @@ describe('Manage users', () => {
         password: 'testPassword1',
         phoneNumber: '0612345678'
       }).end((err, res) => {
-        let { status, message, data } = res.body;
+        let { status, message } = res.body;
         status.should.be.equal(400);
         message.should.be.a('string').that.equals('firstName must be a string');
         done();
