@@ -82,10 +82,12 @@ let controller = {
           res.status(201).json({
             status: 201,
             message: 'Meal successfully added',
-            data: {
-              id: results.insertId,
-              ...meal
-            }
+            data: [
+              {
+                id: results.insertId,
+                ...meal
+              }
+            ]
           });
         });
       }
@@ -160,14 +162,16 @@ let controller = {
               res.status(201).json({
                 status: 201,
                 message: `Meal with ID ${mealId} successfully updated`,
-                data: {
-                  id: mealId,
-                  ...meal
-                }
+                data: [
+                  {
+                    id: mealId,
+                    ...meal
+                  }
+                ]
               });
             });
           } else {
-            logger.info('User did not make the meal')
+            logger.info('User did not make the meal');
             connection.release();
             res.status(403).json({
               status: 403,
@@ -196,6 +200,7 @@ let controller = {
           if (error) throw error;
           for (let i = 0; i < results.length; i++) {
             let { cookId, ...mealInfo } = results[i];
+            logger.debug(cookId);
             if (cookId !== null) {
               connection.query('SELECT * FROM `user` WHERE id=' + cookId, function(error, newResults, fields) {
                 connection.release();
@@ -207,12 +212,14 @@ let controller = {
                   };
                 } else {
                   let { password, ...newResultsInfo } = newResults[0];
+                  logger.debug(password);
                   results[i] = {
                     ...mealInfo,
                     cook: newResultsInfo
                   };
                 }
                 if (i === results.length - 1) {
+                  logger.info('Meals successfully retrieved');
                   res.status(200).json({
                     status: 200,
                     message: 'All meals retrieved',
