@@ -60,7 +60,7 @@ describe('Manage authentication', () => {
         'emailAddress': 'a.name@domain.nl',
         'password': 'incorrect'
       }).end((err, res) => {
-        checkConditions(res, 400);
+        checkConditions(res, 403);
         let { message, data } = res.body;
         message.should.be.equal('Not authorized');
         data.should.be.empty;
