@@ -10,7 +10,7 @@ const pool = mysql.createPool({
   database: process.env.DB_DATABASE || 'share_a_meal',
   multipleStatements: true,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 20,
   maxIdle: 10,
   idleTimeout: 60000,
   queueLimit: 0

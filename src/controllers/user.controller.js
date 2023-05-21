@@ -84,7 +84,6 @@ let controller = {
           });
         });
       }
-      connection.end();
     });
   },
 
