@@ -94,11 +94,11 @@ let controller = {
     let query = '';
     let message = '';
 
-    if(queryField.length === 0) {
+    if (queryField.length === 0) {
       query = 'SELECT * FROM user';
       message = 'Server get users endpoint';
     } else if (queryField.length >= 2 && (!validQueries.includes(queryField[0][0]) || !validQueries.includes(queryField[1][0]))) {
-      query = 'SELECT * from `user` WHERE 1=0'
+      query = 'SELECT * from `user` WHERE 1=0';
       message = 'Invalid query parameters';
     } else if (queryField.length === 2 && (validQueries.includes(queryField[0][0]) && validQueries.includes(queryField[1][0]))) {
       query = 'SELECT * FROM `user` WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\' AND ' + queryField[1][0] + ' = \'' + queryField[1][1] + '\';';
@@ -107,7 +107,7 @@ let controller = {
       query = 'SELECT * FROM `user` WHERE ' + queryField[0][0] + ' = \'' + queryField[0][1] + '\';';
       message = `Get user filtered by ${queryField[0][0]}`;
     } else {
-      query = 'SELECT * from `user` WHERE 1=0'
+      query = 'SELECT * from `user` WHERE 1=0';
       message = 'Invalid query parameters';
     }
 
@@ -220,7 +220,7 @@ let controller = {
 
   // UC-205
   editUserById: (req, res, next) => {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
     const user = req.body;
     const query = {
       sql: 'UPDATE `user` SET firstName=?, lastName=?, emailAddress=?, street=?, city=?, isActive=?, password=?, phoneNumber=? WHERE id=' + userId + ';',
@@ -228,7 +228,7 @@ let controller = {
       timeout: 2000
     };
 
-    if (userId == req.userId) {
+    if (userId === req.userId) {
       pool.getConnection(function(err, connection) {
         if (err) {
           next({
@@ -251,7 +251,10 @@ let controller = {
             res.status(200).json({
               status: 200,
               message: `User with ID ${userId} edited`,
-              data: user
+              data: {
+                id: req.userId,
+                ...user
+              }
             });
           });
         }

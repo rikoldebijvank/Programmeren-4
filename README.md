@@ -6,7 +6,8 @@ Wanneer een gebruiker is ingelogd kan hij zijn data en maaltijden updaten en zic
 
 
 ## Gebruik
-Hier staan de endpoints van de API. Creeër eerst een gebruiker, log daarna in en gebruik de gekregen token als authenticatie.
+Hier staan de endpoints van de API. Creeër eerst een gebruiker, log daarna in en gebruik de gekregen token als authenticatie.  
+Link: programmeren-4.up.railway.app
 
 ### Register New User
 #### Request
