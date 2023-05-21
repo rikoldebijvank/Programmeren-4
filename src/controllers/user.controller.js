@@ -306,7 +306,6 @@ let controller = {
         let cookId = null;
         let query = 'DELETE FROM `user` WHERE id = ' + userId;
         connection.query('SELECT cookId FROM `meal` WHERE cookId = ' + userId, function(error, results, field) {
-          connection.release();
           if (error) throw error;
           try {
             cookId = results[0].cookId;

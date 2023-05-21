@@ -139,9 +139,9 @@ let controller = {
       }
       if (connection) {
         connection.query('SELECT id, cookId FROM `meal` WHERE id=' + mealId, function(error, results, fields) {
-          connection.release();
           if (error) throw error;
           if (results.length === 0) {
+            connection.release();
             res.status(404).json({
               status: 404,
               message: `Meal with ID ${mealId} was not found`,
@@ -161,6 +161,7 @@ let controller = {
               });
             });
           } else {
+            connection.release();
             res.status(403).json({
               status: 403,
               message: 'Not authorized',
@@ -185,7 +186,6 @@ let controller = {
       }
       if (connection) {
         connection.query(query, function(error, results, fields) {
-          connection.release();
           if (error) throw error;
           for (let i = 0; i < results.length; i++) {
             let { cookId, ...mealInfo } = results[i];
@@ -234,7 +234,6 @@ let controller = {
       }
       if (connection) {
         connection.query(query, function(error, results, fields) {
-          connection.release();
           if (error) throw error;
 
           if (results.length > 0) {
@@ -272,6 +271,7 @@ let controller = {
               }
             });
           } else {
+            connection.release()
             res.status(404).json({
               status: 404,
               message: `Meal with ID ${mealId} was not found`,
@@ -301,9 +301,9 @@ let controller = {
       }
       if (connection) {
         connection.query(cookIdQuery, function(error, results, fields) {
-          connection.release();
           if (error) throw error;
           if (results.length === 0) {
+            connection.release();
             res.status(404).json({
               status: 404,
               message: `Meal with ID ${mealId} was not found`,
@@ -322,6 +322,7 @@ let controller = {
                 });
               });
             } else {
+              connection.release();
               res.status(403).json({
                 status: 403,
                 message: 'Not authorized',

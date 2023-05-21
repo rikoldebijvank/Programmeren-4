@@ -18,7 +18,7 @@ module.exports = {
           message: err.code
         });
       }
-
+      console.log(query)
       connection.query(query, function(error, results, fields) {
         connection.release();
         if (error) throw error;
