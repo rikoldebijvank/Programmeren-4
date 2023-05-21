@@ -252,17 +252,19 @@ let controller = {
 
           if (results.length > 0) {
             let { cookId, ...mealInfo } = results[0];
-            logger.debug(cookId);
+            logger.debug(`cookId: ${cookId}`);
             connection.query('SELECT * FROM `user` WHERE id=' + cookId, function(error, newResults, fields) {
               connection.release();
               if (error) throw error;
               if (newResults.length === 0) {
+                logger.info('meal not found');
                 res.status(404).json({
                   status: 404,
                   message: `Meal with ID ${mealId} was not found`,
                   data: []
                 });
               } else if (cookId === req.userId) {
+                logger.info('meal found + owner');
                 results[0] = {
                   ...mealInfo,
                   cook: newResults[0]
@@ -273,6 +275,7 @@ let controller = {
                   data: results
                 });
               } else {
+                logger.info('meal found, not the owner - without password');
                 let { password, ...userInfo } = newResults[0];
                 results[0] = {
                   ...mealInfo,
@@ -286,6 +289,7 @@ let controller = {
               }
             });
           } else {
+            logger.info('meal not found');
             connection.release();
             res.status(404).json({
               status: 404,
@@ -317,7 +321,9 @@ let controller = {
       if (connection) {
         connection.query(cookIdQuery, function(error, results, fields) {
           if (error) throw error;
+          logger.debug(results.length);
           if (results.length === 0) {
+            logger.info('Meal not found');
             connection.release();
             res.status(404).json({
               status: 404,
@@ -325,6 +331,7 @@ let controller = {
               data: []
             });
           } else {
+            logger.info('Meal found')
             const userId = results[0].cookId;
             if (userId === req.userId) {
               connection.query(query, function(error, results, fields) {
@@ -337,6 +344,7 @@ let controller = {
                 });
               });
             } else {
+              logger.info('Not authorized')
               connection.release();
               res.status(403).json({
                 status: 403,

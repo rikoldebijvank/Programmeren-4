@@ -1,6 +1,7 @@
 const assert = require('assert');
 const userDatabase = require('../util/inmemdb_user');
 const pool = require('../util/mysql-db');
+const logger = require('../util/utils').logger;
 
 let controller = {
 
@@ -67,6 +68,7 @@ let controller = {
           connection.release();
           if (error) {
             if (error.sqlMessage.includes('Duplicate')) {
+              logger.info('User already exists');
               res.status(403).json({
                 status: 403,
                 message: 'User already exists',
@@ -111,6 +113,8 @@ let controller = {
       query = 'SELECT * from `user` WHERE 1=0';
       message = 'Invalid query parameters';
     }
+
+    logger.debug(`query: ${query}, message: ${message}`);
 
     pool.getConnection(function(err, connection) {
       if (err) {
@@ -240,7 +244,7 @@ let controller = {
         connection.query(query, function(error, results, fields) {
           connection.release();
           if (error) throw error;
-          console.log(results.affectedRows)
+          logger.info(results.affectedRows)
           if (results.affectedRows === 0) {
             res.status(404).json({
               status: 404,
@@ -314,6 +318,7 @@ let controller = {
           if (error) throw error;
           try {
             cookId = results[0].cookId;
+            logger.debug(`cookId: ${cookId}`)
             query = 'UPDATE `meal` SET cookId = NULL WHERE cookId =' + userId + '; DELETE FROM `user` WHERE id = ' + userId;
             connection.query(query, function(error, results, fields) {
               connection.release();
