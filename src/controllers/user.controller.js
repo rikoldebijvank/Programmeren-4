@@ -229,26 +229,27 @@ let controller = {
       timeout: 2000
     };
 
-    if (userId === req.userId) {
-      pool.getConnection(function(err, connection) {
-        if (err) {
-          next({
-            status: 500,
-            message: err.code
-          });
-        }
-        if (connection) {
-          connection.query(query, function(error, results, fields) {
-            connection.release();
-            if (error) throw error;
-            if (results.affectedRows === 0) {
-              res.status(404).json({
-                status: 404,
-                message: `User with ID ${userId} not found`,
-                data: []
-              });
-              return;
-            }
+    pool.getConnection(function(err, connection) {
+      if (err) {
+        next({
+          status: 500,
+          message: err.code
+        });
+      }
+      if (connection) {
+        connection.query(query, function(error, results, fields) {
+          connection.release();
+          if (error) throw error;
+          console.log(results.affectedRows)
+          if (results.affectedRows === 0) {
+            res.status(404).json({
+              status: 404,
+              message: `User with ID ${userId} not found`,
+              data: []
+            });
+            return;
+          }
+          if (userId === req.userId) {
             res.status(200).json({
               status: 200,
               message: `User with ID ${userId} edited`,
@@ -257,16 +258,16 @@ let controller = {
                 ...user
               }
             });
-          });
-        }
-      });
-    } else {
-      res.status(403).json({
-        status: 403,
-        message: 'Not authorized',
-        data: []
-      });
-    }
+          } else {
+            res.status(403).json({
+              status: 403,
+              message: 'Not authorized',
+              data: []
+            });
+          }
+        });
+      }
+    });
 
     // userDatabase.editById(id, req.body, (error, result) => {
     //   if (error) {
